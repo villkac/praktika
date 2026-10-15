@@ -8,7 +8,7 @@ namespace _5
 {
     public partial class MainWindow : Window
     {
-        private bool resultShown = false; // показывает, получен ли результат
+        private bool resultShown = false; // показан ли результат
 
         public MainWindow()
         {
@@ -21,112 +21,107 @@ namespace _5
         {
             if (sender is not Button button) return; // проверяем, что нажата кнопка
 
-            string value = button.Content?.ToString() ?? ""; // получаем надпись кнопки
-            string display = txtDisplay.Text; // получаем текст с экрана
+            string value = button.Content?.ToString() ?? ""; // получаем текст кнопки
+            string display = txtDisplay.Text; // получаем выражение с экрана
 
+            // Очистка калькулятора
             if (value == "C")
             {
-                txtDisplay.Text = "0"; // очищаем экран
+                txtDisplay.Text = "0";
                 resultShown = false;
                 return;
             }
 
+            // Вычисление выражения при нажатии на =
             if (value == "=")
             {
+                // Если выражение не закончено, ничего не вычисляем
+                if (display.Length == 0 ||
+                    "+-*/,".Contains(display[display.Length - 1]))
+                    return;
+
                 try
                 {
-                    txtDisplay.Text = Calculate(display); // вычисляем выражение
-                    resultShown = true; // результат получен
+                    // Заменяем запятую точкой, чтобы DataTable.Compute() правильно вычислял дробные числа
+                    object result = new DataTable().Compute(
+                        display.Replace(',', '.'), null);
+
+                    // Преобразуем результат в строку и возвращаем запятую
+                    txtDisplay.Text = (Convert.ToString(
+                        result, CultureInfo.InvariantCulture) ?? "0")
+                        .Replace('.', ',');
+
+                    resultShown = true; // отмечаем, что результат получен
                 }
                 catch
                 {
-                    MessageBox.Show("Ошибка вычисления.");
+                    MessageBox.Show("Ошибка вычисления или деление на ноль!");
                 }
 
                 return;
             }
 
+            // Проверяем, нажата ли цифра
+            if (value.Length == 1 && char.IsDigit(value[0]))
+            {
+                // Начинаем новое число, если уже получили результат или на экране 0
+                if (resultShown || display == "0")
+                    txtDisplay.Text = value;
+                else
+                    txtDisplay.Text += value; // добавляем цифру к выражению
+
+                resultShown = false;
+                return;
+            }
+
+            // Обработка запятой
             if (value == ",")
             {
-                // Если начинаем новое число, ставим перед запятой ноль
-                if (resultShown || display == "0")
+                // После результата начинаем ввод нового дробного числа
+                if (resultShown)
                 {
                     txtDisplay.Text = "0,";
                     resultShown = false;
                     return;
                 }
 
-                // Находим последний знак операции
+                // Ищем последний математический знак
                 int index = display.LastIndexOfAny(
                     new char[] { '+', '-', '*', '/' });
 
-                // Получаем число после последней операции
+                // Получаем число после последнего знака
                 string number = display.Substring(index + 1);
 
+                if (number.Contains(",")) return; // запятая уже есть
+
                 if (number == "")
-                    txtDisplay.Text += "0,"; // начинаем дробное число
-                else if (!number.Contains(","))
-                    txtDisplay.Text += ","; // добавляем запятую, если её ещё нет
+                    txtDisplay.Text += "0,"; // если число ещё не введено
+                else
+                    txtDisplay.Text += ","; // добавляем запятую
 
                 return;
             }
 
+            // Обработка математических операций
             if ("+-*/".Contains(value))
             {
+                // Если результат уже получен, продолжаем вычисление с ним
                 if (resultShown)
                 {
-                    txtDisplay.Text = display + value; // продолжаем расчёт с результатом
+                    txtDisplay.Text = display + value;
                     resultShown = false;
-                    return;
                 }
-
-                // Если последний символ уже операция, заменяем его
-                if (display.Length > 0 &&
-                    "+-*/".Contains(display[display.Length - 1]))
+                // Если предыдущий символ уже операция, заменяем его
+                else if ("+-*/".Contains(display[display.Length - 1]))
                 {
                     txtDisplay.Text =
                         display.Substring(0, display.Length - 1) + value;
-                    return;
                 }
-
-                // Если выражение уже содержит операцию, сначала считаем его
-                if (display.IndexOfAny(
-                    new char[] { '+', '-', '*', '/' }) >= 0)
+                else
                 {
-                    try
-                    {
-                        display = Calculate(display);
-                    }
-                    catch
-                    {
-                        MessageBox.Show("Ошибка вычисления.");
-                        return;
-                    }
+                    txtDisplay.Text += value; // добавляем знак к выражению
                 }
-
-                txtDisplay.Text = display + value; // добавляем новый знак
-                return;
             }
-
-            // Если получен результат или на экране ноль, начинаем ввод заново
-            if (resultShown || display == "0")
-                txtDisplay.Text = value;
-            else
-                txtDisplay.Text += value; // добавляем цифру к выражению
-
-            resultShown = false;
-        }
-
-        private string Calculate(string expression)
-        {
-            // Заменяем запятую точкой для вычисления
-            object result = new DataTable().Compute(
-                expression.Replace(',', '.'), null);
-
-            // Преобразуем ответ в строку и возвращаем запятую
-            return (Convert.ToString(
-                result, CultureInfo.InvariantCulture) ?? "0")
-                .Replace('.', ',');
         }
     }
 }
