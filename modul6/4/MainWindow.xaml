@@ -1,0 +1,172 @@
+﻿<Window x:Class="WpfApp4.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Учёт финансов"
+        Height="650" Width="1000"
+        WindowStartupLocation="CenterScreen"
+        Background="#FFFCE4EC">
+
+    <Grid Margin="12">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Поля ввода -->
+        <WrapPanel Grid.Row="0" Margin="0,0,0,12">
+
+            <StackPanel Margin="0,0,12,8">
+                <TextBlock Text="Тип операции"/>
+
+                <ComboBox x:Name="cmbType"
+                          Width="120"
+                          Height="30"
+                          SelectedIndex="0">
+
+                    <ComboBoxItem Content="Доход"/>
+                    <ComboBoxItem Content="Расход"/>
+
+                </ComboBox>
+            </StackPanel>
+
+            <StackPanel Margin="0,0,12,8">
+                <TextBlock Text="Категория"/>
+
+                <TextBox x:Name="txtCategory"
+                         Width="160"
+                         Height="30"/>
+            </StackPanel>
+
+            <StackPanel Margin="0,0,12,8">
+                <TextBlock Text="Сумма"/>
+
+                <TextBox x:Name="txtAmount"
+                         Width="110"
+                         Height="30"/>
+            </StackPanel>
+
+            <StackPanel Margin="0,0,12,8">
+                <TextBlock Text="Дата"/>
+
+                <DatePicker x:Name="dpDate"
+                            Width="150"
+                            Height="30"/>
+            </StackPanel>
+
+            <StackPanel Margin="0,0,0,8">
+                <TextBlock Text="Описание"/>
+
+                <TextBox x:Name="txtDescription"
+                         Width="220"
+                         Height="30"/>
+            </StackPanel>
+
+        </WrapPanel>
+
+        <!-- Кнопки -->
+        <WrapPanel Grid.Row="1" Margin="0,0,0,12">
+
+            <Button Content="Добавить"
+                    Width="100"
+                    Height="32"
+                    Margin="0,0,8,0"
+                    Background="#FFF8BBD0"
+                    Click="Add_Click"/>
+
+            <Button Content="Изменить"
+                    Width="100"
+                    Height="32"
+                    Margin="0,0,8,0"
+                    Background="#FFF8BBD0"
+                    Click="Update_Click"/>
+
+            <Button Content="Удалить"
+                    Width="100"
+                    Height="32"
+                    Margin="0,0,8,0"
+                    Background="#FFF8BBD0"
+                    Click="Delete_Click"/>
+
+            <Button Content="Очистить поля"
+                    Width="130"
+                    Height="32"
+                    Background="#FFF8BBD0"
+                    Click="ClearFields_Click"/>
+
+        </WrapPanel>
+
+        <!-- Финансовые итоги -->
+        <WrapPanel Grid.Row="2" Margin="0,0,0,12">
+
+            <TextBlock Text="Доходы: "
+                       FontWeight="Bold"
+                       VerticalAlignment="Center"/>
+
+            <TextBlock x:Name="txtIncomeTotal"
+                       Text="0,00"
+                       Margin="0,0,20,0"
+                       VerticalAlignment="Center"/>
+
+            <TextBlock Text="Расходы: "
+                       FontWeight="Bold"
+                       VerticalAlignment="Center"/>
+
+            <TextBlock x:Name="txtExpenseTotal"
+                       Text="0,00"
+                       Margin="0,0,20,0"
+                       VerticalAlignment="Center"/>
+
+            <TextBlock Text="Баланс: "
+                       FontWeight="Bold"
+                       VerticalAlignment="Center"/>
+
+            <TextBlock x:Name="txtBalance"
+                       Text="0,00"
+                       FontWeight="Bold"
+                       VerticalAlignment="Center"/>
+
+        </WrapPanel>
+
+        <!-- Таблица финансовых операций -->
+        <DataGrid x:Name="dgRecords"
+                  Grid.Row="3"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserAddRows="False"
+                  SelectionChanged="dgRecords_SelectionChanged">
+
+            <DataGrid.Columns>
+
+                <DataGridTextColumn Header="ID"
+                                    Binding="{Binding Id}"
+                                    Width="50"/>
+
+                <DataGridTextColumn Header="Тип"
+                                    Binding="{Binding Type}"
+                                    Width="90"/>
+
+                <DataGridTextColumn Header="Категория"
+                                    Binding="{Binding Category}"
+                                    Width="130"/>
+
+                <DataGridTextColumn Header="Сумма"
+                                    Binding="{Binding Amount}"
+                                    Width="100"/>
+
+                <DataGridTextColumn Header="Дата"
+                                    Binding="{Binding Date}"
+                                    Width="110"/>
+
+                <DataGridTextColumn Header="Описание"
+                                    Binding="{Binding Description}"
+                                    Width="*"/>
+
+            </DataGrid.Columns>
+
+        </DataGrid>
+
+    </Grid>
+</Window>
